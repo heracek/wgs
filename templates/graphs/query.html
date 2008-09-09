@@ -1,0 +1,25 @@
+{% extends "graphs/base.html" %}
+
+{% block head %}
+  {{ query_form.media }}
+{% endblock %}
+
+{% block content %}
+  <form id="dqf" action="." method="get" accept-charset="utf-8">
+    <ul id="dqf_fields_header">
+      <li id="dqf_header_field"><span class="dqf_add_remove_controls right"><img class="dqf_button" id="dqf_head_remove_button" src="{{ MEDIA_URL }}img/dqf/remove.png" alt="remove" width="24" heignt="24"></img><img class="dqf_button" id="dqf_head_add_button" src="{{ MEDIA_URL }}img/dqf/add.png" alt="add" width="24" heignt="24"></img></span><span>Django query filter</span></li>
+    </ul>
+    
+    <ul id="dqf_fields">
+      {{ query_form.as_dqf_ul }}
+      <li><input class="right" type="submit" value="Search" name="search"></li>
+    </ul>
+  </form>
+  <script type="text/javascript">
+    var DQFfields={num_components:{type:"int",label:"Number of components"}};
+    DQFInitializeForm();
+  </script>
+  <code>
+    {{ query_form.clean }}
+  </code>
+{% endblock %}

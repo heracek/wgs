@@ -1,0 +1,35 @@
+#dqf_fields,
+#dqf_fields_header {
+    padding: 0;
+    margin: 0;
+    border-right: 1px solid gray;
+}
+
+#dqf_fields {
+    border-bottom: 1px solid gray;
+}
+
+#dqf_fields li,
+#dqf_fields_header li {
+    padding: 3px;
+    margin: 0;
+    border-top: 1px solid gray;
+    border-left: 1px solid gray;
+    height: 24px;
+}
+
+.right {
+    float: right;
+}
+
+.dqf_button {
+    opacity: 0.6;
+}
+
+.dqf_button:hover {
+    opacity: 0.8;
+}
+
+.dqf_button:active {
+    opacity: 1;
+}

@@ -1,0 +1,6 @@
+{% extends "graphs/base.html" %}
+{% block content %}
+  {{ object.graph_matrix|escape }}
+  {{ object.regular }}
+  {{ object.complete }}
+{% endblock %}
