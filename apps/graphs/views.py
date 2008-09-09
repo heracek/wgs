@@ -1,4 +1,4 @@
-from wgs.apps.graphs.forms import QueryForm
+from wgs.apps.graphs.forms import query_form_factory
 from wgs.apps.graphs.models import Graph
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
@@ -12,6 +12,7 @@ def graph_details(request, graph_id):
 
 def graph_query(request):
     if request.method == 'GET' and 'search' in request.GET:
+        QueryForm = query_form_factory(request.GET)
         query_form = QueryForm(request.GET)
         if query_form.is_valid():
             pass

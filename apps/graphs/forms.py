@@ -70,13 +70,23 @@ class DQFFieldsField(forms.CharField):
         kwargs['required'] = False
         kwargs['widget'] = forms.HiddenInput()
         super(DQFFieldsField, self).__init__(*args, **kwargs)
-    pass
+    
+    def clean(self, value):
+        "Validates max_length and min_length. Returns a Unicode object."
+        super(DQFFieldsField, self).clean(value)
+        if value in forms.fields.EMPTY_VALUES:
+            return []
+        
+        try:
+            value = str(value)
+        except UnicodeEncodeError:
+            raise forms.ValidationError('Field contains invalid character.')
+        
+        return value.split(',')
 
 
 class QueryForm(forms.Form):
     fields = DQFFieldsField()
-    q_0 = IntegerQueryField()
-    # q_2 = IntegerQueryField()
     
     ADD_REMOVE_BUTTONS = """<span class="dqf_add_remove_controls">
             <img class="dqf_button dqf_remove_button" src="%(MEDIA_URL)simg/dqf/remove.png" """ \
@@ -96,8 +106,7 @@ class QueryForm(forms.Form):
             insert_hidden_in_the_last_row=False
         )
     
-    def _html_output(self, normal_row, error_row, row_ender, help_text_html, errors_on_separate_row,
-        insert_hidden_in_the_last_row=True):
+    def _html_output(self, normal_row, error_row, row_ender, help_text_html, errors_on_separate_row, insert_hidden_in_the_last_row=True):
         "Helper function for outputting HTML. Used by as_table(), as_ul(), as_p()."
         top_errors = self.non_field_errors() # Errors that should be displayed above all fields.
         output, hidden_fields = [], []
@@ -147,4 +156,13 @@ class QueryForm(forms.Form):
         return mark_safe(u'\n'.join(output))
     
     class Media:
-        js = ('js/jquery.js', 'js/django-query-form.js',)
+        js = ('js/jquery.js', 'js/django-query-form.js')
+
+def query_form_factory(data):
+    initial_qf = QueryForm(data)
+    
+    if initial_qf.is_valid():
+        attrs = dict([(field_name, IntegerQueryField()) for field_name in initial_qf.cleaned_data['fields']])
+        
+        return type('QueryForm', (QueryForm,), attrs)
+
