@@ -9,16 +9,26 @@
     border-bottom: 1px solid gray;
 }
 
-#dqf_fields li,
-#dqf_fields_header li {
+#dqf_fields li.dqf_field,
+#dqf_fields_header li,
+#dqf_fields li#dqf_fields_footer {
     padding: 3px;
     margin: 0;
     border-top: 1px solid gray;
     border-left: 1px solid gray;
+    line-height: 24px;
+}
+
+#dqf_fields li#dqf_fields_footer {
     height: 24px;
 }
 
-.right {
+.dqf_add_remove_controls {
+    float: left;
+    margin-right: 5px;
+}
+
+#dqf_search_button {
     float: right;
 }
 
@@ -33,3 +43,9 @@
 .dqf_button:active {
     opacity: 1;
 }
+
+ul.errorlist {
+    background-color: #fdd;
+}
+
+.right { float: right; }
