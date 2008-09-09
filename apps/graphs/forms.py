@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -*- coding: utf-8 -*-
 from django import forms
 from django.conf import settings
 from django.utils.html import escape
@@ -22,47 +22,79 @@ FIELDS_CHOICES = (
     ('num_components', 'Number of components')
 )
 
-class IntegerQueryWidget(forms.MultiWidget):
-    """
-    A Widget that splits datetime input into two <input type="text"> boxes.
-    """
-    def __init__(self, fields_choices, operands, attrs=None):
-        widgets = (
-            forms.Select(attrs=attrs, choices=fields_choices),
-            forms.Select(attrs=attrs, choices=operands),
-            forms.TextInput(attrs=attrs)
-        )
-        
-        super(IntegerQueryWidget, self).__init__(widgets, attrs)
+class DQFDynamicWidget(forms.MultiWidget):
+    def __init__(self, widgets, attrs=None):
+        super(DQFDynamicWidget, self).__init__(widgets, attrs)
         
     def decompress(self, value):
         return ()
     
     def format_output(self, rendered_widgets):
         return '<span class="dqf_field_body">%s</span>' % (u''.join(rendered_widgets))
+    
+    def value_from_datadict(self, data, files, name):
+        return_list = super(DQFDynamicWidget, self).value_from_datadict(data, files, name)
         
-class IntegerQueryField(forms.MultiValueField):
-    def __init__(self, required=False, label=None, widget=None, initial=0):
-        fields = (
-            forms.ChoiceField(choices=FIELDS_CHOICES, required=False),
-            forms.ChoiceField(choices=INTEGER_OPERATOR_CHOICES),
-            forms.IntegerField(initial=initial)
+        if len(return_list) > 0 and not hasattr(self, '_dqf_added_widgets'):
+            field = return_list[0]
+            
+            if field == 'num_components':
+                self.widgets += [
+                    forms.Select(choices=INTEGER_OPERATOR_CHOICES),
+                    forms.TextInput()
+                ]
+                self._dqf_added_widgets = True
+                
+                return super(DQFDynamicWidget, self).value_from_datadict(data, files, name)
+        return return_list
+        
+class DQFDynamicField(forms.MultiValueField):
+    def __init__(self, required=False, label=None, widget=None, initial=None):
+        widget = widget or DQFDynamicWidget(
+            widgets=[ forms.Select(attrs={ 'class': 'fields_select' }, choices=FIELDS_CHOICES), ]
         )
         
-        widget = widget or IntegerQueryWidget(
-            fields_choices=FIELDS_CHOICES,
-            operands=INTEGER_OPERATOR_CHOICES
+        super(DQFDynamicField, self).__init__([ forms.ChoiceField(choices=FIELDS_CHOICES, required=False) ],
+            required, widget, label
         )
+    
+    def clean(self, value):
+        return_dict = super(DQFDynamicField, self).clean(value)
         
-        super(IntegerQueryField, self).__init__(fields, required, widget, label)
+        field = return_dict.get('field', None)
+        if field:
+            if field == 'num_components':
+                self.fields += [
+                    forms.ChoiceField(choices=INTEGER_OPERATOR_CHOICES, required=False),
+                    forms.IntegerField(required=False)
+                ]
+                
+                return super(DQFDynamicField, self).clean(value)
+        
+        return return_dict
         
         
     def compress(self, data_list):
-        if len(data_list) != 3:
-            # print self
+        if len(data_list) == 0:
             return {'does_apply': False}
-        does_apply = data_list[0] is not None and data_list[2] is not None
-        return {'field': data_list[0], 'operator': data_list[1], 'operand': data_list[2], 'does_apply': does_apply}
+        
+        field = data_list[0]
+        
+        return_dict = {'field': field, 'does_apply': False}
+        
+        if field == 'num_components' and len(data_list) >= 2:
+            operator = data_list[1]
+            operand = data_list[2]
+            
+            does_apply = None not in (operator, operand)
+            
+            return_dict.update({
+                'operator': operator,
+                'operand': operand,
+                'does_apply': does_apply
+            })
+        
+        return return_dict
 
 class DQFFieldsField(forms.CharField):
     def __init__(self, *args, **kwargs):
@@ -162,7 +194,7 @@ def query_form_factory(data):
     initial_qf = QueryForm(data)
     
     if initial_qf.is_valid():
-        attrs = dict([(field_name, IntegerQueryField()) for field_name in initial_qf.cleaned_data['fields']])
+        attrs = dict([(field_name, DQFDynamicField()) for field_name in initial_qf.cleaned_data['fields']])
         
         return type('QueryForm', (QueryForm,), attrs)
 

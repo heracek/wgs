@@ -49,13 +49,16 @@ function DQFInitializeForm() {
     
     function _dqf_create_field_li(where, prepend) {
         var field_name = dqf_get_free_field_name()
-        var field_li_text = '<li class="dqf_field"><span class="dqf_add_remove_controls">' +
-            '<img width="24" heignt="24" alt="remove" src="/site-media/img/dqf/remove.png" class="dqf_button dqf_remove_button"/>' +
-            '<img width="24" heignt="24" alt="add" src="/site-media/img/dqf/add.png" class="dqf_button dqf_add_button"/>' +
-            '</span><span class="dqf_field_body"><select id="id_' + field_name + '_0" name="' + field_name + '_0">' +
-            '<option selected="selected" value=""/>' +
-            '<option value="num_components">Number of components</option>' +
-            '</select>' +
+        var field_li_text = '<li class="dqf_field"><span class="dqf_add_remove_controls">' + 
+            '<img width="24" heignt="24" alt="remove" src="/site-media/img/dqf/remove.png" ' + 
+                'class="dqf_button dqf_remove_button"/>' +
+            '<img width="24" heignt="24" alt="add" src="/site-media/img/dqf/add.png" ' + 
+                'class="dqf_button dqf_add_button"/>' + 
+            '</span><span class="dqf_field_body">' + 
+            '<select id="id_' + field_name + '_0" name="' + field_name + '_0" class="fields_select">' + 
+            '<option selected="selected" value=""/>' + 
+            '<option value="num_components">Number of components</option>' + 
+            '</select>' + 
             '</span></li>';
         
         var added_dqf_field_li;
