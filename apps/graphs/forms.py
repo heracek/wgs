@@ -75,17 +75,20 @@ class DQFFieldsField(forms.CharField):
 
 class QueryForm(forms.Form):
     fields = DQFFieldsField()
-    q_1 = IntegerQueryField()
+    q_0 = IntegerQueryField()
     # q_2 = IntegerQueryField()
     
     ADD_REMOVE_BUTTONS = """<span class="dqf_add_remove_controls">
-            <img class="dqf_button dqf_remove_button" src="%(MEDIA_URL)simg/dqf/remove.png" alt="remove" width="24" heignt="24" />""" \
-        """<img class="dqf_button dqf_add_button" src="%(MEDIA_URL)simg/dqf/add.png" alt="add" width="24" heignt="24" />
+            <img class="dqf_button dqf_remove_button" src="%(MEDIA_URL)simg/dqf/remove.png" """ \
+            """alt="remove" width="24" heignt="24" />""" \
+            """<img class="dqf_button dqf_add_button" src="%(MEDIA_URL)simg/dqf/add.png" """ \
+            """alt="add" width="24" heignt="24" />
         </span>"""
     
     def as_dqf_ul(self):
         return self._html_output(
-            normal_row=u'<li class="dqf_field">%%(errors)s%s %%(field)s%%(help_text)s</li>' % (self.ADD_REMOVE_BUTTONS % { 'MEDIA_URL': settings.MEDIA_URL}),
+            normal_row=u'<li class="dqf_field">%%(errors)s%s %%(field)s%%(help_text)s</li>' % \
+                (self.ADD_REMOVE_BUTTONS % { 'MEDIA_URL': settings.MEDIA_URL}),
             error_row=u'<li>%s</li>',
             row_ender='</li>',
             help_text_html=u' %s',
@@ -93,7 +96,8 @@ class QueryForm(forms.Form):
             insert_hidden_in_the_last_row=False
         )
     
-    def _html_output(self, normal_row, error_row, row_ender, help_text_html, errors_on_separate_row, insert_hidden_in_the_last_row=True):
+    def _html_output(self, normal_row, error_row, row_ender, help_text_html, errors_on_separate_row,
+        insert_hidden_in_the_last_row=True):
         "Helper function for outputting HTML. Used by as_table(), as_ul(), as_p()."
         top_errors = self.non_field_errors() # Errors that should be displayed above all fields.
         output, hidden_fields = [], []
@@ -121,7 +125,12 @@ class QueryForm(forms.Form):
                     help_text = help_text_html % force_unicode(field.help_text)
                 else:
                     help_text = u''
-                output.append(normal_row % {'errors': force_unicode(bf_errors), 'label': force_unicode(label), 'field': unicode(bf), 'help_text': help_text})
+                output.append(normal_row % {
+                    'errors': force_unicode(bf_errors),
+                    'label': force_unicode(label),
+                    'field': unicode(bf),
+                    'help_text': help_text
+                })
         if top_errors:
             output.insert(0, error_row % force_unicode(top_errors))
         if hidden_fields: # Insert any hidden fields in the last row.
