@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../../django')))
+
 from django import forms
 from django.conf import settings
 from django.utils.html import escape
@@ -15,6 +19,7 @@ INTEGER_OPERATOR_CHOICES = (
   ('>', '>'),
   ('<=', '≤'),
   ('>=', '≥'),
+  ('between', 'between')
 )
 
 FIELDS_CHOICES = (
@@ -23,11 +28,13 @@ FIELDS_CHOICES = (
 )
 
 class DQFDynamicWidget(forms.MultiWidget):
-    def __init__(self, widgets, attrs=None):
+    def __init__(self, attrs=None):
+        widgets = [ forms.Select(attrs={ 'class': 'fields_select' }, choices=FIELDS_CHOICES), ]
+        self._dqf_added_widgets_level = 0
         super(DQFDynamicWidget, self).__init__(widgets, attrs)
         
     def decompress(self, value):
-        return ()
+        return value
     
     def format_output(self, rendered_widgets):
         return '<span class="dqf_field_body">%s</span>' % (u''.join(rendered_widgets))
@@ -35,24 +42,51 @@ class DQFDynamicWidget(forms.MultiWidget):
     def value_from_datadict(self, data, files, name):
         return_list = super(DQFDynamicWidget, self).value_from_datadict(data, files, name)
         
-        if len(return_list) > 0 and not hasattr(self, '_dqf_added_widgets'):
-            field = return_list[0]
-            
-            if field == 'num_components':
-                self.widgets += [
-                    forms.Select(choices=INTEGER_OPERATOR_CHOICES),
-                    forms.TextInput()
-                ]
-                self._dqf_added_widgets = True
-                
-                return super(DQFDynamicWidget, self).value_from_datadict(data, files, name)
+        while(self._extend_widgets_by_field(return_list)):
+            return_list = super(DQFDynamicWidget, self).value_from_datadict(data, files, name)
+        
         return return_list
+    
+    def render(self, name, value, attrs=None):
+        while self._extend_widgets_by_field(value):
+            pass
+        
+        return super(DQFDynamicWidget, self).render(name=name, value=value, attrs=attrs)
+    
+    def _extend_widgets_by_field(self, values):
+        '''
+        Returns: True  ... extended widgets
+                 False ... not extended widgets
+        '''
+        if len(values) > 0:
+            field = values[0]
+            
+            if self._dqf_added_widgets_level < 1:
+                if field == 'num_components':
+                    self.widgets += [
+                        forms.Select(choices=INTEGER_OPERATOR_CHOICES),
+                        forms.TextInput(),
+                    ]
+                    
+                    self._dqf_added_widgets_level = 1
+                    
+                    return True
+            if self._dqf_added_widgets_level < 2 and len(values) >= 2:
+                secundary_field = values[1]
+                if field == 'num_components':
+                    if secundary_field == 'between':
+                        self.widgets += [
+                            forms.TextInput(),
+                        ]
+                    
+                    self._dqf_added_widgets_level = 2
+                    
+                    return True
+        return False
         
 class DQFDynamicField(forms.MultiValueField):
     def __init__(self, required=False, label=None, widget=None, initial=None):
-        widget = widget or DQFDynamicWidget(
-            widgets=[ forms.Select(attrs={ 'class': 'fields_select' }, choices=FIELDS_CHOICES), ]
-        )
+        widget = widget or DQFDynamicWidget()
         
         super(DQFDynamicField, self).__init__([ forms.ChoiceField(choices=FIELDS_CHOICES, required=False) ],
             required, widget, label
@@ -198,3 +232,6 @@ def query_form_factory(data):
         
         return type('QueryForm', (QueryForm,), attrs)
 
+
+# x = DQFDynamicWidget()
+# print x.render('{ aaa }', ('num_components', 'between', '{ val_1 }', '{ val_2 }'))
