@@ -49,6 +49,15 @@ function DQFInitializeForm() {
     
     function _dqf_create_field_li(where, prepend) {
         var field_name = dqf_get_free_field_name()
+        
+        var field_options = []
+        
+        for (var i = 0; i < DQFfields.fields_order.length; i++) {
+            var option_name = DQFfields.fields_order[i];
+            var option_label = DQFfields.fields_descriptios[option_name].label;
+            field_options.push('<option value="' + option_name + '">' + option_label + '</option>');
+        }
+        
         var field_li_text = '<li class="dqf_field"><span class="dqf_add_remove_controls">' + 
             '<img width="24" heignt="24" alt="remove" src="/site-media/img/dqf/remove.png" ' + 
                 'class="dqf_button dqf_remove_button"/>' +
@@ -57,7 +66,7 @@ function DQFInitializeForm() {
             '</span><span class="dqf_field_body">' + 
             '<select id="id_' + field_name + '_0" name="' + field_name + '_0" class="fields_select">' + 
             '<option selected="selected" value=""/>' + 
-            '<option value="num_components">Number of components</option>' + 
+            field_options.join('\n') +
             '</select>' + 
             '</span></li>';
         

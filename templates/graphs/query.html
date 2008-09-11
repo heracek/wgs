@@ -16,7 +16,25 @@
     </ul>
   </form>
   <script type="text/javascript">
-    var DQFfields={num_components:{type:"int",label:"Number of components"}};
+    var DQFfields = {
+      fields_order: ['order', 'size', 'num_components'],
+      fields_descriptios: {
+        order: {
+          type: "integer",
+          label: "Order"
+        },
+        
+        size: {
+          type: "integer",
+          label: "Size"
+        },
+        
+        num_components: {
+          type: "integer",
+          label: "Number of components"
+        }
+      }
+    };
     DQFInitializeForm();
   </script>
   <code>

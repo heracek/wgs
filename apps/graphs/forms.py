@@ -24,8 +24,16 @@ INTEGER_OPERATOR_CHOICES = (
 
 FIELDS_CHOICES = (
     ('', ''),
-    ('num_components', 'Number of components')
+    ('num_components', 'Number of components'),
+    ("order", "Order"),
+    ("size", "Size"),
 )
+
+FIELD_TYPES = {
+    'num_components': 'integer',
+    'order': 'integer',
+    'size': 'integer',
+}
 
 class DQFDynamicWidget(forms.MultiWidget):
     def __init__(self, attrs=None):
@@ -60,9 +68,10 @@ class DQFDynamicWidget(forms.MultiWidget):
         '''
         if len(values) > 0:
             field = values[0]
+            field_type = FIELD_TYPES.get(field, '')
             
             if self._dqf_added_widgets_level < 1:
-                if field == 'num_components':
+                if field_type == 'integer':
                     self.widgets += [
                         forms.Select(choices=INTEGER_OPERATOR_CHOICES),
                         forms.TextInput(),
@@ -73,7 +82,7 @@ class DQFDynamicWidget(forms.MultiWidget):
                     return True
             if self._dqf_added_widgets_level < 2 and len(values) >= 2:
                 secundary_field = values[1]
-                if field == 'num_components':
+                if field_type == 'integer':
                     if secundary_field == 'between':
                         self.widgets += [
                             forms.TextInput(),
@@ -96,8 +105,9 @@ class DQFDynamicField(forms.MultiValueField):
         return_dict = super(DQFDynamicField, self).clean(value)
         
         field = return_dict.get('field', None)
+        field_type = FIELD_TYPES.get(field, '')
         if field:
-            if field == 'num_components':
+            if field_type == 'integer':
                 self.fields += [
                     forms.ChoiceField(choices=INTEGER_OPERATOR_CHOICES, required=False),
                     forms.IntegerField(required=False)
@@ -113,10 +123,10 @@ class DQFDynamicField(forms.MultiValueField):
             return {'does_apply': False}
         
         field = data_list[0]
-        
+        field_type = FIELD_TYPES.get(field, '')
         return_dict = {'field': field, 'does_apply': False}
         
-        if field == 'num_components' and len(data_list) >= 2:
+        if field_type == 'integer' and len(data_list) >= 2:
             operator = data_list[1]
             operand = data_list[2]
             
@@ -127,6 +137,9 @@ class DQFDynamicField(forms.MultiValueField):
                 'operand': operand,
                 'does_apply': does_apply
             })
+            
+            if operator == 'between' and len(data_list) > 3:
+                return_dict['operand_2'] = data_list[3]
         
         return return_dict
 
