@@ -13,9 +13,5 @@ class Graph(models.Model):
     regular = models.NullBooleanField(blank=True, null=True)
     tree = models.NullBooleanField(blank=True, null=True)
     
-    class Admin:
-        list_display = ('graph_matrix', 'name', 'order', 'size')
-        search_fields = ('name',)
-
     def __unicode__(self):
         return u'%s' % self.name

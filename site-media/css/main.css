@@ -2,11 +2,11 @@
 #dqf_fields_header {
     padding: 0;
     margin: 0;
-    border-right: 1px solid gray;
+    border-right: 1px solid #ddd;
 }
 
 #dqf_fields {
-    border-bottom: 1px solid gray;
+    border-bottom: 1px solid #ddd;
 }
 
 #dqf_fields li.dqf_field,
@@ -14,12 +14,38 @@
 #dqf_fields li#dqf_fields_footer {
     padding: 3px;
     margin: 0;
-    border-top: 1px solid gray;
-    border-left: 1px solid gray;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
     line-height: 24px;
+    
+    background:#E1E1E1 url(/media/img/admin/nav-bg.gif) repeat-x scroll left top;
+    border-bottom:;
+    color:#666666;
+}
+
+#dqf_fields li.dqf_field input,
+#dqf_fields_header li input,
+#dqf_fields li#dqf_fields_footer input {
+    font-size:11px;
+    padding: 2px;
+/*    border:1px solid #ccc;*/
+}
+
+#dqf_fields li.dqf_field input,
+#dqf_fields li.dqf_field select,
+#dqf_fields li.dqf_field img,
+#dqf_fields_header li input,
+#dqf_fields_header li select,
+#dqf_fields_header li img,
+#dqf_fields li#dqf_fields_footer input,
+#dqf_fields li#dqf_fields_footer select,
+#dqf_fields li#dqf_fields_footer img1 {
+
+    margin: 0 3px;
 }
 
 #dqf_fields li#dqf_fields_footer {
+    padding: 6px 3px;
     height: 24px;
 }
 
