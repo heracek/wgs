@@ -12,8 +12,12 @@
     
     <ul id="dqf_fields">
       {{ query_form.as_dqf_ul }}
-      <li id="dqf_fields_footer"><input id="dqf_search_button" type="submit" value="Search" name="search"></li>
     </ul>
+    
+    <ul id="dqf_fields_footer">
+      <li id="dqf_footer_field"><input id="dqf_search_button" type="submit" value="Search" name="search"></li>
+    </ul>
+    
   </form>
   <script type="text/javascript">
     var DQFfields = {
@@ -38,6 +42,6 @@
     DQFInitializeForm();
   </script>
   <code>
-    {{ query_form.clean }}
+    <pre>{{ query_form_clean_pformat }}</pre>
   </code>
 {% endblock %}

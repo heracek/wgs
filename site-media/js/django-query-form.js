@@ -21,6 +21,10 @@ function DQFInitializeForm() {
             dqf_update_fields_field();
             return true;
         });
+        
+        /*$('#dqf_fields').sortable({
+                    cursor: 'move',
+                });*/
     }
     
     function dqf_get_free_field_name() {
@@ -73,9 +77,11 @@ function DQFInitializeForm() {
         var added_dqf_field_li;
         
         if (! prepend) {
-            added_dqf_field_li = where.after(field_li_text).next();
+            added_dqf_field_li = where.after(field_li_text).next().hide().fadeIn("fast");
+            
         } else {
-            added_dqf_field_li = where.prepend(field_li_text).children()[0];
+            added_dqf_field_li = $(where.prepend(field_li_text).children()[0]).hide().fadeIn("fast");
+            
         }
         
         $('.dqf_add_button:first', added_dqf_field_li).click(_dqf_add_button_click);
@@ -89,8 +95,11 @@ function DQFInitializeForm() {
     }
     
     function _dqf_remove_button_click() {
-        var dqf_field_li = $(this).parents("li.dqf_field")[0];
-        $(dqf_field_li).remove();
+        var dqf_field_li = $($(this).parents("li.dqf_field")[0]);
+        dqf_field_li.fadeOut("fast", function () {
+            dqf_field_li.remove();
+        });
+        //dqf_field_li.remove();
     }
     
     DQGInit();

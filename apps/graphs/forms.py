@@ -100,24 +100,39 @@ class DQFDynamicField(forms.MultiValueField):
         super(DQFDynamicField, self).__init__([ forms.ChoiceField(choices=FIELDS_CHOICES, required=False) ],
             required, widget, label
         )
+        
+        self._dqf_added_fields_level = 0
     
     def clean(self, value):
-        return_dict = super(DQFDynamicField, self).clean(value)
+        while self._extend_fields(super(DQFDynamicField, self).clean(value)):
+            pass
         
+        return super(DQFDynamicField, self).clean(value)
+    
+    def _extend_fields(self, return_dict):
         field = return_dict.get('field', None)
         field_type = FIELD_TYPES.get(field, '')
         if field:
-            if field_type == 'integer':
-                self.fields += [
-                    forms.ChoiceField(choices=INTEGER_OPERATOR_CHOICES, required=False),
-                    forms.IntegerField(required=False)
-                ]
-                
-                return super(DQFDynamicField, self).clean(value)
+            if self._dqf_added_fields_level == 0:
+                if field_type == 'integer':
+                    self.fields += [
+                        forms.ChoiceField(choices=INTEGER_OPERATOR_CHOICES, required=False),
+                        forms.IntegerField(required=False)
+                    ]
+                    self._dqf_added_fields_level = 1
+                    return True
+            elif self._dqf_added_fields_level == 1:
+                if field_type == 'integer':
+                    operator = return_dict.get('operator', '')
+                    if operator == 'between':
+                        self.fields += [
+                            forms.IntegerField(required=False)
+                        ]
+                        self._dqf_added_fields_level = 2
+                        return True
+        return False
         
-        return return_dict
-        
-        
+    
     def compress(self, data_list):
         if len(data_list) == 0:
             return {'does_apply': False}
@@ -140,6 +155,8 @@ class DQFDynamicField(forms.MultiValueField):
             
             if operator == 'between' and len(data_list) > 3:
                 return_dict['operand_2'] = data_list[3]
+                if return_dict['operand_2'] is None:
+                    return_dict['does_apply'] = False
         
         return return_dict
 
@@ -235,7 +252,7 @@ class QueryForm(forms.Form):
         return mark_safe(u'\n'.join(output))
     
     class Media:
-        js = ('js/jquery.js', 'js/django-query-form.js')
+        js = ('js/jquery.js', 'js/jquery-ui.js', 'js/django-query-form.js')
 
 def query_form_factory(data):
     initial_qf = QueryForm(data)
