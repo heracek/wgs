@@ -1,4 +1,8 @@
 function DQFInitializeForm() {
+    DQFstates = {
+        'old_fields_select_types_by_id': { }
+    };
+    
     function DQGInit() {
         $('.dqf_add_button').each(function() {
             $(this).click(_dqf_add_button_click);
@@ -7,6 +11,10 @@ function DQFInitializeForm() {
         $('.dqf_remove_button').each(function() {
             $(this).click(_dqf_remove_button_click);
         });
+        
+        _dqf_save_old_fields_select_types()
+        
+        $('.fields_select').change(_dqf_fields_select_change);
         
         $('#dqf_head_add_button:first').click(function () {
             var dqf_fields_ul = $("ul#dqf_fields")[0];
@@ -99,7 +107,40 @@ function DQFInitializeForm() {
         dqf_field_li.fadeOut("fast", function () {
             dqf_field_li.remove();
         });
-        //dqf_field_li.remove();
+    }
+    
+    function _dqf_fields_select_change() {
+        var field_id = $(this).attr('id');
+        var field_name = $(this).val();
+        if (field_name) {
+            var field_type = DQFfields.fields_descriptios[field_name].type;
+        } else {
+            var field_type = ''
+        }
+        var old_field_type = DQFstates.old_fields_select_types_by_id[field_id]
+        
+        if (old_field_type != field_type) {
+            DQFstates.old_fields_select_types_by_id[field_id] = field_type
+            if (field_type == 'integer') {
+                alert('ha');
+            }
+        }
+    }
+    
+    function _dqf_save_old_fields_select_types() {
+        $('.fields_select').each(function() {
+            var field_id = $(this).attr('id');
+            var field_name = $(this).val();
+            
+            if (field_name) {            
+                var field_type = DQFfields.fields_descriptios[field_name].type;
+            
+                DQFstates.old_fields_select_types_by_id[field_id] = field_type;
+            } else {
+                DQFstates.old_fields_select_types_by_id[field_id] = '';
+            }
+        });
+        
     }
     
     DQGInit();
