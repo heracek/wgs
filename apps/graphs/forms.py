@@ -73,8 +73,8 @@ class DQFDynamicWidget(forms.MultiWidget):
             if self._dqf_added_widgets_level < 1:
                 if field_type == 'integer':
                     self.widgets += [
-                        forms.Select(choices=INTEGER_OPERATOR_CHOICES),
-                        forms.TextInput(),
+                        forms.Select(attrs={ 'class': 'integer_operator' }, choices=INTEGER_OPERATOR_CHOICES),
+                        forms.TextInput(attrs={ 'class': 'operand' }),
                     ]
                     
                     self._dqf_added_widgets_level = 1
@@ -85,7 +85,7 @@ class DQFDynamicWidget(forms.MultiWidget):
                 if field_type == 'integer':
                     if secundary_field == 'between':
                         self.widgets += [
-                            forms.TextInput(),
+                            forms.TextInput(attrs={ 'class': 'operand_2' }),
                         ]
                     
                     self._dqf_added_widgets_level = 2

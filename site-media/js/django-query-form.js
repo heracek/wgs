@@ -1,6 +1,7 @@
 function DQFInitializeForm() {
     DQFstates = {
-        'old_fields_select_types_by_id': { }
+        'old_fields_select_types_by_id': { },
+        'old_integer_operator_types_by_id': { }
     };
     
     function DQGInit() {
@@ -15,6 +16,7 @@ function DQFInitializeForm() {
         _dqf_save_old_fields_select_types()
         
         $('.fields_select').change(_dqf_fields_select_change);
+        $('.integer_operator').change(_dqf_integer_operator_change);
         
         $('#dqf_head_add_button:first').click(function () {
             var dqf_fields_ul = $("ul#dqf_fields")[0];
@@ -86,11 +88,11 @@ function DQFInitializeForm() {
         
         if (! prepend) {
             added_dqf_field_li = where.after(field_li_text).next().hide().fadeIn("fast");
-            
         } else {
             added_dqf_field_li = $(where.prepend(field_li_text).children()[0]).hide().fadeIn("fast");
-            
         }
+        
+        $('.fields_select').change(_dqf_fields_select_change);
         
         $('.dqf_add_button:first', added_dqf_field_li).click(_dqf_add_button_click);
         
@@ -122,7 +124,7 @@ function DQFInitializeForm() {
         if (old_field_type != field_type) {
             DQFstates.old_fields_select_types_by_id[field_id] = field_type
             if (field_type == 'integer') {
-                var field_li_text = '<select id="id_' + field_id + '_1" name="' + field_id + '_1">' +
+                var field_li_text = '<select class="integer_operator" id="id_' + field_id + '_1" name="' + field_id + '_1">' +
                     '<option selected="selected" value="=">=</option>' +
                     '<option value="!=">≠</option>' +
                     '<option value="<"><</option>' +
@@ -130,15 +132,40 @@ function DQFInitializeForm() {
                     '<option value="<=">≤</option>' +
                     '<option value=">=">≥</option>' +
                     '<option value="between">between</option>' +
-                    '</select><input type="text" id="id_' + field_id + '_2" value="" name="' + field_id + '_2"/>';
+                    '</select><input class="operand" type="text" id="id_' + field_id + '_2" value="" name="' + field_id + '_2"/>';
+                
+                DQFstates.old_integer_operator_types_by_id[field_id] = '';
                 
                 $(this).after(field_li_text).next().hide().fadeIn("fast");
+                $(this).siblings('.integer_operator').change(_dqf_integer_operator_change);
             } else if (field_type == '') {
                 var siblings_to_remove = $(this).siblings()
                 siblings_to_remove.fadeOut("fast", function () {
                     siblings_to_remove.remove();
                 });
                 
+            }
+        }
+    }
+    
+    function _dqf_integer_operator_change() {
+        var field_id = $(this).attr('id').split('_').slice(1, 3).join('_');
+        var operator_id = $(this).val();
+        
+        if (operator_id != 'between') {
+            operator_id = '';
+        }
+        
+        var old_operator_id = DQFstates.old_fields_select_types_by_id[field_id]
+        DQFstates.old_fields_select_types_by_id[field_id] = operator_id;
+        
+        if (old_operator_id != operator_id) {
+            if (operator_id == 'between') {
+                $(this).siblings('.operand').after('<input type="text" name="' + field_id + '_3" value="" class="operand_2" id="id_' + field_id + '_3"/>').next().hide().fadeIn("fast");
+            } else if (operator_id == '') {
+                $(this).siblings('.operand_2').fadeOut("fast", function () {
+                    $(this).remove();
+                });
             }
         }
     }
@@ -157,6 +184,16 @@ function DQFInitializeForm() {
             }
         });
         
+        $('.integer_operator').each(function() {
+            var field_id = $(this).attr('id').split('_').slice(1, 3).join('_');
+            var field_name = $(this).val();
+            
+            if (field_name == 'between') {            
+                DQFstates.old_integer_operator_types_by_id[field_id] = 'between';
+            } else {
+                DQFstates.old_integer_operator_types_by_id[field_id] = '';
+            }
+        });
     }
     
     DQGInit();

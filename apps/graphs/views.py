@@ -13,17 +13,18 @@ def graph_details(request, graph_id):
         context_instance=RequestContext(request))
 
 def graph_query(request):
+    query_form_clean_pformat = ''
+    
     if request.method == 'GET' and 'search' in request.GET:
         FactoredQueryForm = query_form_factory(request.GET)
         query_form = FactoredQueryForm(request.GET)
         if query_form.is_valid():
-            pass
-            #print query_form.clean()
+            query_form_clean_pformat = pprint.pformat(query_form.clean())
     else:
         query_form = QueryForm()
     return render_to_response('graphs/query.html', {
             'query_form': query_form,
-            'query_form_clean_pformat': pprint.pformat(query_form.clean()) },
+            'query_form_clean_pformat': query_form_clean_pformat },
         context_instance=RequestContext(request))
 
 def get_form_field_html(request, form_field_name):
