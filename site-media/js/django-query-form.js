@@ -110,7 +110,7 @@ function DQFInitializeForm() {
     }
     
     function _dqf_fields_select_change() {
-        var field_id = $(this).attr('id');
+        var field_id = $(this).attr('id').split('_').slice(1, 3).join('_');
         var field_name = $(this).val();
         if (field_name) {
             var field_type = DQFfields.fields_descriptios[field_name].type;
@@ -122,14 +122,30 @@ function DQFInitializeForm() {
         if (old_field_type != field_type) {
             DQFstates.old_fields_select_types_by_id[field_id] = field_type
             if (field_type == 'integer') {
-                alert('ha');
+                var field_li_text = '<select id="id_' + field_id + '_1" name="' + field_id + '_1">' +
+                    '<option selected="selected" value="=">=</option>' +
+                    '<option value="!=">≠</option>' +
+                    '<option value="<"><</option>' +
+                    '<option value=">">></option>' +
+                    '<option value="<=">≤</option>' +
+                    '<option value=">=">≥</option>' +
+                    '<option value="between">between</option>' +
+                    '</select><input type="text" id="id_' + field_id + '_2" value="" name="' + field_id + '_2"/>';
+                
+                $(this).after(field_li_text).next().hide().fadeIn("fast");
+            } else if (field_type == '') {
+                var siblings_to_remove = $(this).siblings()
+                siblings_to_remove.fadeOut("fast", function () {
+                    siblings_to_remove.remove();
+                });
+                
             }
         }
     }
     
     function _dqf_save_old_fields_select_types() {
         $('.fields_select').each(function() {
-            var field_id = $(this).attr('id');
+            var field_id = $(this).attr('id').split('_').slice(1, 3).join('_');
             var field_name = $(this).val();
             
             if (field_name) {            
